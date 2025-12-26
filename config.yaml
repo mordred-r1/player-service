@@ -1,0 +1,19 @@
+database:
+  host: "192.168.56.3"
+  port: 5432
+  username: "admin"
+  password: "admin"
+  name: "students"
+  ssl_mode: "disable"
+
+kafka:
+  host: "192.168.56.3"
+  port: 9092
+  room_events_topic: "rooms.events"
+  player_commands_topic: "players.commands"
+  player_events_topic: "players.events"
+
+redis:
+  addr: "192.168.56.3:6379"
+  password: ""
+  db: 0
