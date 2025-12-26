@@ -61,3 +61,12 @@ func (c *RedisCache) SetPlayer(ctx context.Context, p *models.PlayerState, ttl t
 	key := "player:" + p.ID
 	return c.rdb.Set(ctx, key, string(b), ttl).Err()
 }
+
+// DeletePlayer removes player from cache.
+func (c *RedisCache) DeletePlayer(ctx context.Context, id string) error {
+	if c == nil || c.rdb == nil {
+		return nil
+	}
+	key := "player:" + id
+	return c.rdb.Del(ctx, key).Err()
+}

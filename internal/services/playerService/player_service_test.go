@@ -62,6 +62,10 @@ func (m *mockCache) SetPlayer(ctx context.Context, p *models.PlayerState, ttl ti
 	args := m.Called(ctx, p, ttl)
 	return args.Error(0)
 }
+func (m *mockCache) DeletePlayer(ctx context.Context, id string) error {
+	args := m.Called(ctx, id)
+	return args.Error(0)
+}
 
 // Test Suite
 type PlayerServiceSuite struct {
@@ -83,6 +87,7 @@ func (s *PlayerServiceSuite) TestCreate_Success() {
 	p := &models.PlayerState{ID: "p1", State: "created"}
 	s.storage.On("Create", mock.Anything, p).Return(nil)
 	s.producer.On("Produce", mock.Anything, mock.MatchedBy(func(e *models.PlayerEvent) bool { return e.ID == p.ID && e.State == p.State })).Return(nil)
+	s.cache.On("SetPlayer", mock.Anything, p, mock.Anything).Return(nil)
 
 	err := s.svc.Create(context.Background(), p)
 	s.Require().NoError(err)
@@ -98,6 +103,7 @@ func (s *PlayerServiceSuite) TestCreate_StorageError() {
 	s.Require().Error(err)
 	// producer should not be called
 	s.producer.AssertNotCalled(s.T(), "Produce", mock.Anything, mock.Anything)
+	s.cache.AssertNotCalled(s.T(), "SetPlayer", mock.Anything, mock.Anything, mock.Anything)
 }
 
 func (s *PlayerServiceSuite) TestGet_CacheHit() {
@@ -144,6 +150,7 @@ func (s *PlayerServiceSuite) TestUpdate_Success() {
 	p := &models.PlayerState{ID: "p4", State: "paused"}
 	s.storage.On("Update", mock.Anything, p).Return(nil)
 	s.producer.On("Produce", mock.Anything, mock.MatchedBy(func(e *models.PlayerEvent) bool { return e.ID == p.ID && e.State == p.State })).Return(nil)
+	s.cache.On("SetPlayer", mock.Anything, p, mock.Anything).Return(nil)
 
 	err := s.svc.Update(context.Background(), p)
 	s.Require().NoError(err)
@@ -154,6 +161,7 @@ func (s *PlayerServiceSuite) TestUpdate_Success() {
 func (s *PlayerServiceSuite) TestDelete_Success() {
 	s.storage.On("Delete", mock.Anything, "p5").Return(nil)
 	s.producer.On("Produce", mock.Anything, mock.MatchedBy(func(e *models.PlayerEvent) bool { return e.ID == "p5" && e.State == "deleted" })).Return(nil)
+	s.cache.On("DeletePlayer", mock.Anything, "p5").Return(nil)
 
 	err := s.svc.Delete(context.Background(), "p5")
 	s.Require().NoError(err)

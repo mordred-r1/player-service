@@ -36,4 +36,5 @@ func NewPlayerService(ctx context.Context, playerStorage playerStorage, playerEv
 type playerCache interface {
 	GetPlayer(ctx context.Context, id string) (*models.PlayerState, error)
 	SetPlayer(ctx context.Context, p *models.PlayerState, ttl time.Duration) error
+	DeletePlayer(ctx context.Context, id string) error
 }
