@@ -14,7 +14,7 @@ import (
 func (c *PlayerCommandConsumer) Consume(ctx context.Context) {
 	r := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:           c.kafkaBroker,
-		GroupID:           "PlayerCommandConsumer_group",
+		GroupID:           "PlayerCommandPlayerServiceConsumer_group",
 		Topic:             c.topicName,
 		HeartbeatInterval: 3 * time.Second,
 		SessionTimeout:    30 * time.Second,
